@@ -1,0 +1,137 @@
+# =========================
+# Dependencies
+# =========================
+node_modules/
+jspm_packages/
+.pnp
+.pnp.js
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+
+# =========================
+# Strapi
+# =========================
+.strapi/
+.strapi-updater.json
+exports/
+dist/
+build/
+.cache/
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Strapi database
+*.sqlite
+*.sqlite3
+*.db
+
+# Strapi environment
+.env
+.env.local
+.env.development
+.env.production
+.env.staging
+.env.test
+
+# Strapi generated files
+src/extensions/**/admin/src
+types/generated/
+
+# =========================
+# React.js
+# =========================
+# Production build
+/build
+/dist
+
+# React environment files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# =========================
+# Environment Variables
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# Logs
+# =========================
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# =========================
+# Testing
+# =========================
+/coverage
+*.lcov
+.nyc_output
+
+# =========================
+# Misc
+# =========================
+.DS_Store
+Thumbs.db
+*.pem
+.eslintcache
+.stylelintcache
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# =========================
+# IDEs and Editors
+# =========================
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# =========================
+# Optional npm cache
+# =========================
+.npm
+.eslintcache
+
+# =========================
+# TypeScript (if using)
+# =========================
+*.tsbuildinfo
