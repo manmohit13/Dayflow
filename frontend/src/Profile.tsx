@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
 import api from './type/api';
 import { getProfileImageUrl, type UserProfile } from './type/profile';
 
@@ -12,15 +13,35 @@ export default function Profile() {
     const [password, setPassword] = useState('');
     const [msg, setMsg] = useState('');
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
-    const loadMe = async () => {
+    const loadMe = useCallback(async () => {
         const res = await api.get<UserProfile>('/users/me', { params: { populate: 'image' } });
         setMe(res.data);
         setUsername(res.data.username);
         setEmail(res.data.email);
-    };
+    }, []);
 
-    useEffect(() => { loadMe(); }, []);
+    useEffect(() => {
+        let cancelled = false;
+
+        const loadProfile = async () => {
+            try {
+                await loadMe();
+            } catch (loadError: unknown) {
+                if (cancelled) return;
+                if (axios.isAxiosError(loadError) && loadError.response?.status === 401) {
+                    localStorage.removeItem('jwt');
+                    navigate('/', { replace: true });
+                    return;
+                }
+                setError('Could not load your profile. Please try again.');
+            }
+        };
+
+        void loadProfile();
+        return () => { cancelled = true; };
+    }, [loadMe, navigate]);
 
     const handleUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -41,7 +62,13 @@ export default function Profile() {
 
     const profileImageUrl = getProfileImageUrl(me?.image);
 
-    if (!me) return <div className="container">Loading...</div>;
+    if (!me) {
+        return (
+            <div className="container">
+                {error ? <p className="error">{error}</p> : 'Loading...'}
+            </div>
+        );
+    }
 
     return (
         <div className="container">

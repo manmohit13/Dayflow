@@ -18,6 +18,7 @@ export default function Login() {
       localStorage.setItem('jwt', res.data.jwt);
       navigate('/tasks');
     } catch (error: unknown) {
+      localStorage.removeItem('jwt');
       let message = 'Unable to log in. Please try again.';
 
       if (axios.isAxiosError(error)) {
