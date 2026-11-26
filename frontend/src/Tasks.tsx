@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from './api';
+import { getProfileImageUrl, type UserProfile } from './profile';
 
 type Category = { documentId: string; name: string };
 type Task = {
@@ -14,6 +15,8 @@ type Task = {
 export default function Tasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profileError, setProfileError] = useState('');
 
   // add form
   const [title, setTitle] = useState('');
@@ -37,6 +40,18 @@ export default function Tasks() {
 
   useEffect(() => {
     load();
+    const loadProfile = async () => {
+      try {
+        const response = await api.get<UserProfile>('/users/me', {
+          params: { populate: 'image' },
+        });
+        setProfile(response.data);
+      } catch {
+        setProfileError('Could not load profile image.');
+      }
+    };
+
+    loadProfile();
   }, []);
 
   // CREATE
@@ -90,19 +105,29 @@ export default function Tasks() {
     navigate('/');
   };
 
+  const profileImageUrl = getProfileImageUrl(profile?.image);
+
   return (
     <div className="container">
       <div className="top-bar">
         <h2>My Tasks</h2>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button className="ghost" onClick={() => navigate('/profile')}>
-            Profile
+          <button className="ghost profile-button" onClick={() => navigate('/profile')}>
+            {profileImageUrl ? (
+              <img className="avatar" src={profileImageUrl} alt="" />
+            ) : (
+              <span className="avatar avatar-fallback" aria-hidden="true">
+                {profile?.username?.charAt(0).toUpperCase() || 'P'}
+              </span>
+            )}
+            <span>Profile</span>
           </button>
           <button className="ghost" onClick={logout}>
             Logout
           </button>
         </div>
       </div>
+      {profileError && <p className="error">{profileError}</p>}
 
       {/* Add form */}
       <div className="form-col" style={{ marginBottom: 16 }}>

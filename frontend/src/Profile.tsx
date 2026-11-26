@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from './api';
-
-type Me = { id: number; username: string; email: string; createdAt: string };
+import { getProfileImageUrl, type UserProfile } from './profile';
 
 export default function Profile() {
-    const [me, setMe] = useState<Me | null>(null);
+    const [me, setMe] = useState<UserProfile | null>(null);
     const [editing, setEditing] = useState(false);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
@@ -14,7 +13,7 @@ export default function Profile() {
     const [error, setError] = useState('');
 
     const loadMe = async () => {
-        const res = await api.get('/users/me');        // ME
+        const res = await api.get<UserProfile>('/users/me', { params: { populate: 'image' } });
         setMe(res.data);
         setUsername(res.data.username);
         setEmail(res.data.email);
@@ -39,6 +38,8 @@ export default function Profile() {
         }
     };
 
+    const profileImageUrl = getProfileImageUrl(me?.image);
+
     if (!me) return <div className="container">Loading...</div>;
 
     return (
@@ -46,6 +47,20 @@ export default function Profile() {
             <div className="top-bar">
                 <h2>My Profile</h2>
                 <Link to="/tasks">← Back to tasks</Link>
+            </div>
+
+            <div className="avatar-box">
+                {profileImageUrl ? (
+                    <img
+                        className="avatar avatar-lg"
+                        src={profileImageUrl}
+                        alt={me.image?.alternativeText || `${me.username}'s profile`}
+                    />
+                ) : (
+                    <div className="avatar avatar-lg avatar-fallback" aria-label="No profile image">
+                        {me.username.charAt(0).toUpperCase()}
+                    </div>
+                )}
             </div>
 
             {msg && <p style={{ color: '#16a34a' }}>{msg}</p>}
