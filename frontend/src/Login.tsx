@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import api from './api';
 
 export default function Login() {
@@ -10,12 +11,30 @@ export default function Login() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     try {
-      const res = await api.post('/auth/local', { identifier, password });
+      const res = await api.post('/auth/local', { identifier: identifier.trim(), password });
       localStorage.setItem('jwt', res.data.jwt);
       navigate('/tasks');
-    } catch {
-      setError('Wrong email or password');
+    } catch (error: unknown) {
+      let message = 'Unable to log in. Please try again.';
+
+      if (axios.isAxiosError(error)) {
+        if (!error.response) {
+          message = 'Cannot reach the server. Check that the backend is running and try again.';
+        } else {
+          const responseMessage = error.response.data?.error?.message;
+          if (typeof responseMessage === 'string') {
+            message = responseMessage === 'Invalid identifier or password'
+              ? 'Wrong email or password'
+              : responseMessage;
+          } else if (error.response.status >= 500) {
+            message = 'Server error. Please try again later.';
+          }
+        }
+      }
+
+      setError(message);
     }
   };
 
