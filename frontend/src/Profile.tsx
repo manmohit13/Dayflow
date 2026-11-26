@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import api from './api';
-import { getProfileImageUrl, type UserProfile } from './profile';
+import api from './type/api';
+import { getProfileImageUrl, type UserProfile } from './type/profile';
+
 
 export default function Profile() {
     const [me, setMe] = useState<UserProfile | null>(null);

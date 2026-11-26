@@ -2,8 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './Login';
 import Register from './Register';
 import Tasks from './Tasks';
-import Profile from './Profile';
 import type { JSX } from 'react/jsx-runtime';
+import Profile from './Profile';
 
 function Protected({ children }: { children: JSX.Element }) {
   return localStorage.getItem('jwt') ? children : <Navigate to="/" />;

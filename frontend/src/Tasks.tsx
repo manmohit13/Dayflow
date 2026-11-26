@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from './api';
-import { getProfileImageUrl, type UserProfile } from './profile';
+import api from './type/api';
+import { getProfileImageUrl, type UserProfile } from './type/profile';
 
 type Category = { documentId: string; name: string };
 type Task = {
