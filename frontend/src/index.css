@@ -106,3 +106,36 @@ li {
 
 .actions { display: flex; gap: 6px; flex-shrink: 0; }
 .actions button { padding: 6px 10px; font-size: 13px; }
+
+/* Avatar */
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.avatar-lg { width: 96px; height: 96px; font-size: 36px; }
+.avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e0e7ff;
+  color: #3730a3;
+  font-weight: 600;
+}
+.avatar-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.upload-btn {
+  padding: 6px 12px;
+  background: #e5e7eb;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.upload-btn:hover { background: #d1d5db; }

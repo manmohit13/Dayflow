@@ -29,7 +29,12 @@ export default function Register() {
         <input type="password" placeholder="Password (min 6 characters)" value={password} onChange={(e) => setPassword(e.target.value)} />
         <button type="submit">Create account</button>
         {error && <p className="error">{error}</p>}
-        <Link to="/">Already have an account? Login</Link>
+      <Link
+  to="/"
+  style={{ textAlign: 'center', fontSize: 14, color: '#4f46e5', textDecoration: 'none' }}
+>
+  Already have an account? Login
+</Link>
       </form>
     </div>
   );

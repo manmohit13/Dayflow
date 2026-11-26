@@ -72,6 +72,16 @@
       "relation": "oneToMany",
       "target": "api::task.task",
       "mappedBy": "owner"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
     }
   }
 }

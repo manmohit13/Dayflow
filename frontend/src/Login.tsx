@@ -47,7 +47,12 @@ export default function Login() {
       <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
       <button type="submit">Login</button>
       {error && <p className="error">{error}</p>}
-      <Link to="/register">New here? Register</Link>
+      <Link
+  to="/register"
+  style={{ textAlign: 'center', fontSize: 14, color: '#4f46e5', textDecoration: 'none' }}
+>
+  New here? Register
+</Link>
     </form>
   </div>
 );
