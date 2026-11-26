@@ -95,37 +95,40 @@ export default function Tasks() {
     navigate('/');
   };
 
- return (
-  <div className="container">
-    <div className="top-bar">
-      <h2>My Tasks</h2>
-      <button className="ghost" onClick={logout}>Logout</button>
-    </div>
+  return (
+    <div className="container">
+      <div className="top-bar">
+        <h2>My Tasks</h2>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className="ghost" onClick={() => navigate('/profile')}>Profile</button>
+          <button className="ghost" onClick={logout}>Logout</button>
+        </div>
+      </div>
 
-    <div className="row">
-      <input placeholder="New task" value={title} onChange={(e) => setTitle(e.target.value)} />
-      <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
-        <option value="">No category</option>
-        {categories.map((c) => (
-          <option key={c.documentId} value={c.documentId}>{c.name}</option>
+      <div className="row">
+        <input placeholder="New task" value={title} onChange={(e) => setTitle(e.target.value)} />
+        <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
+          <option value="">No category</option>
+          {categories.map((c) => (
+            <option key={c.documentId} value={c.documentId}>{c.name}</option>
+          ))}
+        </select>
+        <button onClick={addTask}>Add</button>
+      </div>
+      {taskError && <p className="error">{taskError}</p>}
+      {categoryError && <p className="error">{categoryError}</p>}
+      {formError && <p className="error">{formError}</p>}
+
+      <ul>
+        {tasks.map((t) => (
+          <li key={t.documentId}>
+            <input type="checkbox" checked={t.isDone} onChange={() => toggleDone(t)} />
+            <span className={t.isDone ? 'done' : ''}>{t.title}</span>
+            {t.category && <span className="tag" style={{ flex: 'none' }}>{t.category.name}</span>}
+            <button className="danger" onClick={() => removeTask(t.documentId)}>Delete</button>
+          </li>
         ))}
-      </select>
-      <button onClick={addTask}>Add</button>
+      </ul>
     </div>
-    {taskError && <p className="error">{taskError}</p>}
-    {categoryError && <p className="error">{categoryError}</p>}
-    {formError && <p className="error">{formError}</p>}
-
-    <ul>
-      {tasks.map((t) => (
-        <li key={t.documentId}>
-          <input type="checkbox" checked={t.isDone} onChange={() => toggleDone(t)} />
-          <span className={t.isDone ? 'done' : ''}>{t.title}</span>
-          {t.category && <span className="tag" style={{ flex: 'none' }}>{t.category.name}</span>}
-          <button className="danger" onClick={() => removeTask(t.documentId)}>Delete</button>
-        </li>
-      ))}
-    </ul>
-  </div>
-);
+  );
 }

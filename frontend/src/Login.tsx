@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import api from './api';
+import { Link } from 'react-router-dom';
 
 export default function Login() {
   const [identifier, setIdentifier] = useState('');
@@ -46,6 +47,7 @@ export default function Login() {
       <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
       <button type="submit">Login</button>
       {error && <p className="error">{error}</p>}
+      <Link to="/register">New here? Register</Link>
     </form>
   </div>
 );
