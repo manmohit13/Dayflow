@@ -84,6 +84,14 @@ li {
 .task-title { font-weight: 600; }
 .task-title.done { text-decoration: line-through; color: #9ca3af; }
 .task-desc { font-size: 13px; color: #6b7280; }
+.task-image {
+  display: block;
+  max-width: 100%;
+  max-height: 240px;
+  width: fit-content;
+  border-radius: 8px;
+  object-fit: contain;
+}
 
 .meta { display: flex; gap: 6px; margin-top: 4px; }
 

@@ -39,7 +39,7 @@ export default factories.createCoreController('api::task.task', ({ strapi }) => 
   async mine(ctx) {
     const tasks = await strapi.documents('api::task.task').findMany({
       filters: { owner: ctx.state.user.id },
-      populate: ['category'],
+      populate: ['category', 'Image'],
     });
     return { data: tasks };
   },

@@ -10,6 +10,7 @@ type Task = {
   description?: string;
   isDone: boolean;
   category?: Category;
+  Image?: UserProfile['image'];
 };
 
 export default function Tasks() {
@@ -22,12 +23,16 @@ export default function Tasks() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [categoryId, setCategoryId] = useState('');
+  const [newTaskImage, setNewTaskImage] = useState<File | null>(null);
+  const [taskError, setTaskError] = useState('');
 
   // edit form
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [editDescription, setEditDescription] = useState('');
   const [editCategory, setEditCategory] = useState('');
+  const [editImage, setEditImage] = useState<File | null>(null);
+  const [removeEditImage, setRemoveEditImage] = useState(false);
 
   const navigate = useNavigate();
 
@@ -36,6 +41,15 @@ export default function Tasks() {
     const c = await api.get('/categories');
     setTasks(t.data.data);
     setCategories(c.data.data);
+  };
+
+  const uploadTaskImage = async (taskId: string, image: File) => {
+    const formData = new FormData();
+    formData.append('files', image);
+    formData.append('ref', 'api::task.task');
+    formData.append('refId', taskId);
+    formData.append('field', 'Image');
+    await api.post('/upload', formData);
   };
 
   useEffect(() => {
@@ -57,12 +71,35 @@ export default function Tasks() {
   // CREATE
   const addTask = async () => {
     if (!title.trim()) return;
-    await api.post('/tasks', {
-      data: { title, description, isDone: false, category: categoryId || null },
-    });
+    setTaskError('');
+    let response;
+    try {
+      response = await api.post('/tasks', {
+        data: { title, description, isDone: false, category: categoryId || null },
+      });
+    } catch {
+      setTaskError('Could not create the task. Please try again.');
+      return;
+    }
+
+    const imageToUpload = newTaskImage;
     setTitle('');
     setDescription('');
     setCategoryId('');
+    setNewTaskImage(null);
+
+    if (imageToUpload) {
+      const taskId = (response.data?.data as { documentId?: string } | undefined)?.documentId;
+      if (!taskId) {
+        setTaskError('Task created, but its image could not be attached.');
+      } else {
+        try {
+          await uploadTaskImage(taskId, imageToUpload);
+        } catch {
+          setTaskError('Task created, but its image could not be uploaded. Edit the task to try again.');
+        }
+      }
+    }
     load();
   };
 
@@ -78,18 +115,38 @@ export default function Tasks() {
     setEditTitle(task.title);
     setEditDescription(task.description || '');
     setEditCategory(task.category?.documentId || '');
+    setEditImage(null);
+    setRemoveEditImage(false);
   };
 
   // UPDATE: save edit form
   const saveEdit = async () => {
     if (!editTitle.trim() || !editingId) return;
-    await api.put(`/tasks/${editingId}`, {
-      data: {
-        title: editTitle,
-        description: editDescription,
-        category: editCategory || null,
-      },
-    });
+    setTaskError('');
+    try {
+      await api.put(`/tasks/${editingId}`, {
+        data: {
+          title: editTitle,
+          description: editDescription,
+          category: editCategory || null,
+          ...(removeEditImage ? { Image: null } : {}),
+        },
+      });
+    } catch {
+      setTaskError('Could not save task changes. Please try again.');
+      return;
+    }
+
+    if (editImage) {
+      try {
+        await uploadTaskImage(editingId, editImage);
+      } catch {
+        setTaskError('Task details were saved, but its image could not be uploaded. Please try again.');
+        load();
+        return;
+      }
+    }
+
     setEditingId(null);
     load();
   };
@@ -148,11 +205,21 @@ export default function Tasks() {
           <button onClick={addTask}>Add</button>
         </div>
         <input
-          placeholder="Description (optional)"
+          placeholder="Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-        />
+        /> 
+        <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          Task image
+          <input
+            key={newTaskImage ? newTaskImage.name : 'empty'}
+            type="file"
+            accept="image/*"
+            onChange={(e) => setNewTaskImage(e.target.files?.[0] || null)}
+          />
+        </label>
       </div>
+      {taskError && <p className="error">{taskError}</p>}
 
       {/* Task list */}
       <ul>
@@ -172,6 +239,38 @@ export default function Tasks() {
                   onChange={(e) => setEditDescription(e.target.value)}
                   placeholder="Description"
                 />
+                {t.Image?.url && !removeEditImage && (
+                  <img
+                    className="task-image"
+                    src={getProfileImageUrl(t.Image) || undefined}
+                    alt={t.Image.alternativeText || `${t.title} attachment`}
+                  />
+                )}
+                <label>
+                  {t.Image && !removeEditImage ? 'Replace task image' : 'Task image'}
+                  <input
+                    key={editImage ? editImage.name : 'empty'}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      setEditImage(e.target.files?.[0] || null);
+                      setRemoveEditImage(false);
+                    }}
+                  />
+                </label>
+                {editImage && <span>{editImage.name}</span>}
+                {t.Image && !removeEditImage && (
+                  <button
+                    className="ghost"
+                    onClick={() => {
+                      setEditImage(null);
+                      setRemoveEditImage(true);
+                    }}
+                  >
+                    Remove image
+                  </button>
+                )}
+                {removeEditImage && <span>Image will be removed when you save.</span>}
                 <select value={editCategory} onChange={(e) => setEditCategory(e.target.value)}>
                   <option value="">No category</option>
                   {categories.map((c) => (
@@ -193,6 +292,13 @@ export default function Tasks() {
               <div className="task-info">
                 <span className={`task-title ${t.isDone ? 'done' : ''}`}>{t.title}</span>
                 {t.description && <span className="task-desc">{t.description}</span>}
+                {t.Image?.url && (
+                  <img
+                    className="task-image"
+                    src={getProfileImageUrl(t.Image) || undefined}
+                    alt={t.Image.alternativeText || `${t.title} attachment`}
+                  />
+                )}
                 <div className="meta">
                   {t.category && <span className="tag">{t.category.name}</span>}
                   <span className={`status ${t.isDone ? 'status-done' : 'status-pending'}`}>
