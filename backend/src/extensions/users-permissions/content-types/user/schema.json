@@ -82,6 +82,18 @@
         "videos",
         "audios"
       ]
+    },
+    "otpHash": {
+      "type": "string",
+      "private": true,
+      "searchable": false
+    },
+    "otpExpiresAt": {
+      "type": "datetime",
+      "private": true
+    },
+    "emailVerified": {
+      "type": "boolean"
     }
   }
 }

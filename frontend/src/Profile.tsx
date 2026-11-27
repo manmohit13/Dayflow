@@ -13,6 +13,7 @@ export default function Profile() {
     const [password, setPassword] = useState('');
     const [msg, setMsg] = useState('');
     const [error, setError] = useState('');
+    const [imageUploading, setImageUploading] = useState(false);
     const navigate = useNavigate();
 
     const loadMe = useCallback(async () => {
@@ -60,6 +61,35 @@ export default function Profile() {
         }
     };
 
+    const handleProfileImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.currentTarget.files?.[0];
+        e.currentTarget.value = '';
+        if (!file || !me) return;
+
+        setError('');
+        setMsg('');
+        setImageUploading(true);
+
+        const formData = new FormData();
+        formData.append('files', file);
+        formData.append('ref', 'plugin::users-permissions.user');
+        formData.append('refId', String(me.id));
+        formData.append('field', 'image');
+
+        try {
+            await api.post('/upload', formData);
+            await loadMe();
+            setMsg('Profile photo updated');
+        } catch (uploadError: unknown) {
+            const message = axios.isAxiosError(uploadError)
+                ? uploadError.response?.data?.error?.message
+                : undefined;
+            setError(typeof message === 'string' ? message : 'Could not upload profile photo. Please try again.');
+        } finally {
+            setImageUploading(false);
+        }
+    };
+
     const profileImageUrl = getProfileImageUrl(me?.image);
 
     if (!me) {
@@ -89,9 +119,20 @@ export default function Profile() {
                         {me.username.charAt(0).toUpperCase()}
                     </div>
                 )}
+                <label className="upload-btn">
+                    {imageUploading ? 'Uploading...' : me.image ? 'Change profile photo' : 'Set profile photo'}
+                    <input
+                        type="file"
+                        accept="image/*"
+                        disabled={imageUploading}
+                        onChange={handleProfileImageChange}
+                        hidden
+                    />
+                </label>
             </div>
 
             {msg && <p style={{ color: '#16a34a' }}>{msg}</p>}
+            {error && <p className="error">{error}</p>}
 
             {!editing ? (
                 <div className="form-col">
@@ -109,7 +150,6 @@ export default function Profile() {
                         <button type="submit">Save</button>
                         <button type="button" className="ghost" onClick={() => setEditing(false)}>Cancel</button>
                     </div>
-                    {error && <p className="error">{error}</p>}
                 </form>
             )}
         </div>

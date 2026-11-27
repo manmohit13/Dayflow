@@ -2,7 +2,9 @@ import type { Core } from '@strapi/strapi';
 
 const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Middlewares => [
   'strapi::logger',
+  'global::request-logger',
   'strapi::errors',
+  'global::error-handler',
   'strapi::security',
   {
     name: 'strapi::cors',
@@ -15,6 +17,7 @@ const config = ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Middlewar
   'strapi::poweredBy',
   'strapi::query',
   'strapi::body',
+  'global::require-verified-email',
   'strapi::session',
   'strapi::favicon',
   'strapi::public',
